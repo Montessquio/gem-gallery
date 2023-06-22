@@ -1,0 +1,33 @@
+[package]
+name = "mgp-caddy"
+version = "0.1.0"
+edition = "2021"
+
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.28", features = ["full"] }
+eyre = "0.6"
+tracing="0.1"
+base64="0.21"
+md-5="0.10"
+rand="0.8"
+file-format= { version = "0.17", features = ["reader-ebml", "reader-xml"] }
+image= { version = "0.24", features = ["webp-encoder"] }
+
+[dependencies.ffmpeg-next]
+path = "./dep/crate/rust-ffmpeg"
+#version = "6.0"
+features = [
+    "static",
+    "build",
+    "build-lib-dav1d",
+    "build-lib-mp3lame",
+    "build-lib-opus",
+    "build-lib-vpx",
+]
+
+[build-dependencies]
+current_platform = "0.2.0"

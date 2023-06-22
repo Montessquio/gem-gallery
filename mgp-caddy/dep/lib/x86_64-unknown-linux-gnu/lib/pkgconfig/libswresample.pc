@@ -1,0 +1,14 @@
+prefix=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu
+exec_prefix=${prefix}
+libdir=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/lib
+includedir=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/include
+
+Name: libswresample
+Description: FFmpeg audio resampling library
+Version: 4.11.100
+Requires: libavutil >= 58.13.101
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lswresample -lm -latomic
+Libs.private: 
+Cflags: -I${includedir}

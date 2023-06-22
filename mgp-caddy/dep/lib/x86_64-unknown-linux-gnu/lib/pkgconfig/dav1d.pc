@@ -1,0 +1,9 @@
+prefix=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu
+includedir=${prefix}/include
+libdir=${prefix}/lib64
+
+Name: libdav1d
+Description: AV1 decoding library
+Version: 1.2.1
+Libs: -L${libdir} -ldav1d -pthread -ldl
+Cflags: -I${includedir} -pthread

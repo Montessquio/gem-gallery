@@ -1,0 +1,14 @@
+prefix=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu
+exec_prefix=${prefix}
+libdir=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/lib
+includedir=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/include
+
+Name: libswscale
+Description: FFmpeg image rescaling library
+Version: 7.3.100
+Requires: libavutil >= 58.13.101
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lswscale -lm -latomic
+Libs.private: 
+Cflags: -I${includedir}

@@ -1,0 +1,14 @@
+prefix=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu
+exec_prefix=${prefix}
+libdir=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/lib
+includedir=/home/silver/projects/microblog-gallery-project/mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 60.21.100
+Requires: libswresample >= 4.11.100, libavutil >= 58.13.101
+Requires.private: 
+Conflicts:
+Libs: -L${libdir}  -lavcodec -lvpx -lm -lm -lpthread -lvpx -lm -lm -lpthread -lvpx -lm -lm -lpthread -lvpx -lm -lm -lpthread -pthread -lm -latomic -ldav1d -pthread -ldl -lmp3lame -lm -lopus -lm -lvorbis -lm -logg -lvorbisenc -lvorbis -lm -logg
+Libs.private: 
+Cflags: -I${includedir}

@@ -1,0 +1,5 @@
+
+Possible "Premium Service" upgrades:
+
+- Larger file upload size
+- Lossless image storage (default is lossy)

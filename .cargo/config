@@ -1,0 +1,6 @@
+[build]
+rustflags = ["-Crelocation-model=pie"]
+
+[env]
+FOO = "bar"
+FFMPEG_DIR = { value = "mgp-caddy/dep/lib/x86_64-unknown-linux-gnu/", relative = true }
