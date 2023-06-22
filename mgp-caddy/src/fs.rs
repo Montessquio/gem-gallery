@@ -6,7 +6,7 @@ use base64::{
     Engine as _,
 };
 use eyre::{bail, ensure, Result};
-use md5::{Digest, Md5};
+use uuid::Uuid;
 use rand::prelude::*;
 use std::{
     error::Error,
@@ -42,10 +42,10 @@ impl FileStore {
     /// Returns the serialized filename made with [`gen_file_name`](Self::gen_file_name).
     pub async fn write(
         &mut self,
-        filename: &str,
+        normalized_id: &str,
         mut payload: impl AsyncRead + Unpin,
     ) -> Result<String> {
-        let (rel_path, fname) = Self::chunk_path(&Self::hash_name(filename));
+        let (rel_path, fname) = Self::chunk_path(normalized_id);
         let path = self.safe_canonicalize(&rel_path)?;
 
         ensure!(path.exists(), FSError::NameCollision(fname));
@@ -59,8 +59,8 @@ impl FileStore {
     /// Retrieves the given file from the filesystem.
     /// Assumes that the input filename is already in
     /// the format returned by `hash_name`.
-    pub async fn read(&self, filename: &str) -> Result<impl AsyncRead> {
-        let (rel_path, fname) = Self::chunk_path(filename);
+    pub async fn read(&self, normalized_id: &str) -> Result<impl AsyncRead> {
+        let (rel_path, fname) = Self::chunk_path(normalized_id);
         let path = self.safe_canonicalize(&rel_path)?;
 
         ensure!(path.exists(), FSError::NotFound(fname));
@@ -101,40 +101,32 @@ impl FileStore {
     /// The `gen_file_name` function takes a generic `filename` as input and generates a unique file name based on it.
     /// The generated file name is created by concatenating the little-endian byte representations of
     ///
-    /// 1. The MD5 hash of the input filename
+    /// 1. A random UUID
     /// 2. The current UNIX timestamp
     /// 3. A random 32-bit unsigned integer
     ///
     /// and then Base64 encoding the entire byte array using a url-safe alphabet.
     ///
-    fn hash_name<T: AsRef<[u8]>>(filename: T) -> String {
-        fn gen_inner(filename: &[u8]) -> String {
-            let fid = {
-                let mut hasher = Md5::new();
-                hasher.update(filename);
-                hasher.finalize()
-            };
+    fn generate_normal_id() -> String {
+        let fid = Uuid::new_v4().as_bytes();
 
-            let now = {
-                let start = SystemTime::now();
-                let since_the_epoch = start
-                    .duration_since(UNIX_EPOCH)
-                    .expect("Time went backwards");
-                since_the_epoch.as_secs().to_le_bytes()
-            };
+        let now = {
+            let start = SystemTime::now();
+            let since_the_epoch = start
+                .duration_since(UNIX_EPOCH)
+                .expect("Time went backwards");
+            since_the_epoch.as_secs().to_le_bytes()
+        };
 
-            let num = thread_rng().gen::<u32>().to_le_bytes();
+        let num = thread_rng().gen::<u32>().to_le_bytes();
 
-            let bindat = [fid.as_slice(), &now, &num].concat();
+        let bindat = [fid.as_slice(), &now, &num].concat();
 
-            const BASE64: engine::GeneralPurpose =
-                engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
-            BASE64.encode(bindat)
-        }
-        gen_inner(filename.as_ref())
+        const BASE64: engine::GeneralPurpose =
+            engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
+        BASE64.encode(bindat)
     }
 
-    /// Runs the file name through [gen_file_name] and
     /// The file name is split into the following path:
     /// [First 3 chars]/[Next 3 chars]/[Next 3 chars]/[Entire Filename Unchanged]
     ///
@@ -152,17 +144,17 @@ impl FileStore {
     /// For example, if the file name is `abc123def456.txt`, the resulting path would be `abc/123/def/abc123def456.txt`
     ///
     /// This function is intended to be used exclusively in conjunction with [hash_name] and therefore will panic if fname is not long enough.
-    fn chunk_path(fname: &str) -> (PathBuf, String) {
+    fn chunk_path(normalized_id: &str) -> (PathBuf, String) {
         (
             Path::new(&format!(
                 "{}/{}/{}/{}",
-                &fname[0..=2],
-                &fname[3..=5],
-                &fname[6..=8],
-                &fname
+                &normalized_id[0..=2],
+                &normalized_id[3..=5],
+                &normalized_id[6..=8],
+                &normalized_id
             ))
             .to_owned(),
-            fname.to_owned(),
+            normalized_id.to_owned(),
         )
     }
 }
