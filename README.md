@@ -41,7 +41,7 @@ The Webhook Dispatcher module is responsible for receiving events from the API G
 
 ## Internal Services
 
-### Media Caddy `mgp-caddy`
+### [Media Caddy `mgp-caddy`](mgp-caddy/README.md)
 
 The media caddy service is responsible for safely storing and serving media files uploaded
 by users. All media formats are normalized to WebP for images and WebM(VP9/Opus) for video.
