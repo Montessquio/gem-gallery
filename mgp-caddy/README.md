@@ -1,8 +1,17 @@
 # MGP-Caddy
 
+## Roadmap
+
+- [ ] Docker Image
+- [ ] HTTP REST Interface
+- [X] Image Transcoding
+- [ ] Video Transcoding (Assignee: Monty)
+- [X] Name Normalization
+- [X] Filesystem I/O
+
 ## Building
 
-`cargo build`
+`cargo build` will build the binary executable with all its dependencies statically linked.
 
 ### Dependencies
 
