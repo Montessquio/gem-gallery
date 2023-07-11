@@ -71,6 +71,7 @@ it simply returns a URL to that media accessible through the Media Caddy.
 - [ ] Paging Support
 - [ ] Thread Assembly
 - [ ] Individual Post Retrieval
+- [X] DB Schema
 
 Concepts like "timelines" and "comment threads" are not present in the timeline builder (despite its name);
 all it knows about is the unit structure `Post`. Instead, it functions as a hybrid relational/entity-component
