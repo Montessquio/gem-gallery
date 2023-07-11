@@ -1,0 +1,20 @@
+[package]
+name = "mgp-messages"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+argon2 = "0.5.0"
+serde = { version = "1.0", features = ["derive"] }
+uuid = { version = "1.4", features = ["serde", "v4"]}
+diesel = { version = "2.1.0", features = ["chrono", "postgres", "r2d2", "uuid", "serde_json"] }
+diesel-derive-enum = { version = "2.1.0", features = ["postgres"] }
+dotenvy = "0.15.7"
+eyre = "0.6.8"
+hyper = "0.14.27"
+tokio = "1.29.1"
+tracing = "0.1.37"
+serde_json = "1.0.100"
+chrono = { version = "0.4.26", features = ["serde"] }
