@@ -37,8 +37,8 @@ This service expects a database with the correct schema already in place. Use th
 ```mermaid
 graph TD
     GET([REST API: GET])-->AUTH[Auth Checker];
-    AUTH -> ORM[Query Builder];
-    ORM -> DB[Database];
+    AUTH --> ORM[Query Builder];
+    ORM --> DB[Database];
 ```
 
 The Messages service is strictly stateless and read-only. It will *not* produce a database write under any circumstances
