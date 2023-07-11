@@ -13,8 +13,8 @@
   - [Media Objects](#media-objects)
     - [`GET /posts/{ROOT POST UUID}`](#get-postsroot-post-uuid)
     - [`GET /search/all`](#get-searchall)
-    - [`GET /user/{USER UUID in URLSAFE BASE64}/posts`](#get-useruser-uuid-in-urlsafe-base64posts)
-    - [`GET /user/{USER UUID in URLSAFE BASE64}/follows`](#get-useruser-uuid-in-urlsafe-base64follows)
+    - [`GET /search/all/{USER UUID in URLSAFE BASE64}`](#get-searchalluser-uuid-in-urlsafe-base64)
+    - [`GET /search/follows/{USER UUID in URLSAFE BASE64}`](#get-searchfollowsuser-uuid-in-urlsafe-base64)
     - [Responses](#responses)
 
 ## Roadmap
@@ -50,8 +50,7 @@ The Messages service is strictly stateless and read-only. It will *not* produce 
 ### Code Layout
 
 - The HTTP API can be found in `src/main.rs`.
-- Transcoding functionality for both videos and images are in `src/convert.rs`.
-- Name normalization and resolution is in `fs.rs`.
+- WIP
 
 ## API
 
@@ -65,17 +64,17 @@ the resolved name for the Messages service.
 ### Query Parameters
 
 All endpoints which query posts accept certain parameters which allow clients to refine what data they will receive.
-These parameters are specified via standard URL params: `?depth=[int]&limit=[int]&sort=[best|new]&fields=comma,separated,list,of,fields&expansions=comma,separated,list,of,expansions`,
+These parameters are specified via standard URL params: `?depth=[int]&limit=[int]&sort=[top|new]&fields=comma,separated,list,of,fields&expansions=comma,separated,list,of,expansions`,
 All url parameters are optional, although some queries will return an empty (but OK) response when none are set.
 
 - **depth=integer**: Specifies how the lookup of child posts should be performed. Depth of zero fetches only the root post. A depth of 1 fetches the root post and all comments which are its direct children. A depth of 2 fetches all comments which are its grandchildren, and so on. A negative depth will fetch the post and its entire comment tree.
-- **limit=integer**: Specifies the total number of comments to be returned in the response if `comments` is expanded.
+- **limit=integer**: Specifies the total number of comments to be returned in the response if `comments` is expanded. A negative limit means no limit.
 - **before=ISO 8601 DateTime String** and **after=ISO 8601 DateTime String**: Return only posts within the given time bounds (inclusive).
   - This can be used in conjunction with `limit` to produce pagination in chronological reply sorting mode.
 - **score=INTEGER? [> | < | <= | >= ] INTEGER**: Return comments with like counts within the given range.
   - The left-bound may be omitted for an unbounded query, for example all posts with score `100>=`
   - This can be used in conjunction with `limit` to produce pagination in scored reply sorting mode. Beware that adding and removing likes on posts is not atomic, and the client should perform additional checks to ensure they are not duplicating posts as the contents and order of the score-sorted list of children may change between requests.
-- **sort=[best|new]**: Specifies how the returned list of comments should be sorted. `best` will sort based on like count, and `new` sorts based on post time.
+- **sort=[top|new|hot]**: Specifies how the returned list of comments should be sorted. `top` will sort based on like count, and `new` sorts based on post time. `hot` does both, first sorting messages by time and then chunk sorting based on a heuristic to provide posts that are active and engaging within the given time frame.
 - **tags=comma,separated,list,of,hashtags**: Return only posts which contain ALL the given tags (Logical AND).
 
 The **fields=commaseplist** field is a comma-separated list describing which fields of the lookup the client is interested in.
@@ -227,13 +226,13 @@ according to the requested sorting mode. The total number of comments returned w
 ### `GET /search/all`
 
 Returns a JSON array of the posts which satisfy the conditions in the query parameters.
-To get a list of `latest` posts, sort by `new`. To get the top posts of a certain time period, sort by `best`.
+To get a list of `latest` posts, sort by `new`. To get the top posts of a certain time period, sort by `top`.
 
-### `GET /user/{USER UUID in URLSAFE BASE64}/posts`
+### `GET /search/all/{USER UUID in URLSAFE BASE64}`
 
 Returns a json array of posts authored by the given user.
 
-### `GET /user/{USER UUID in URLSAFE BASE64}/follows`
+### `GET /search/follows/{USER UUID in URLSAFE BASE64}`
 
 Functions like [`GET /search/all`](#get-searchall) but the search is restricted only
 to posts authored by users the given user follows.

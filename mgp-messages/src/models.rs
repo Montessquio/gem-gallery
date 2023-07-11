@@ -50,20 +50,20 @@ pub enum ParentMode {
 #[diesel(table_name = crate::schema::posts)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Post {
-    id: Uuid,
-    body: String,
-    media: serde_json::Value,
-    author: Uuid,
-    published: NaiveDateTime,
-    likes: i64,
-    reblogs: i64,
-    comments: i64,
-    mentions: Vec<Option<Uuid>>,
-    tags: Vec<Option<String>>,
-    parent: Option<Uuid>,
-    parent_mode: Option<ParentMode>,
-    
-    flags: serde_json::Value,
+    pub id: Uuid,
+    pub body: String,
+    pub media: serde_json::Value,
+    pub author: Uuid,
+    pub published: NaiveDateTime,
+    pub likes: i64,
+    pub reblogs: i64,
+    pub comments: i64,
+    pub mentions: Vec<Option<Uuid>>,
+    pub tags: Vec<Option<String>>,
+    pub parent: Option<Uuid>,
+    pub parent_mode: Option<ParentMode>,
+
+    pub flags: serde_json::Value,
 }
 
 

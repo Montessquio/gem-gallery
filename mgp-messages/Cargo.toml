@@ -14,7 +14,8 @@ diesel-derive-enum = { version = "2.1.0", features = ["postgres"] }
 dotenvy = "0.15.7"
 eyre = "0.6.8"
 hyper = "0.14.27"
-tokio = "1.29.1"
+tokio = { version = "1.29.1", features = ["full"] }
 tracing = "0.1.37"
 serde_json = "1.0.100"
 chrono = { version = "0.4.26", features = ["serde"] }
+warp = { version = "0.3.5", features = ["async-compression", "compression-brotli"] }
