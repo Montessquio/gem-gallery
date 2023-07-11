@@ -18,3 +18,9 @@ mgp-caddy/dep/build/
 
 # Media files for testing.
 *.mp4
+
+.env
+
+# Dev Env
+.vscode/
+testing/
