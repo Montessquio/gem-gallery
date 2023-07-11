@@ -5,10 +5,11 @@ use base64::{
     engine::{self, general_purpose},
     Engine as _,
 };
+use dashmap::DashMap;
 use eyre::{bail, ensure, Result};
-use uuid::Uuid;
 use rand::prelude::*;
 use std::{
+    collections::HashMap,
     error::Error,
     fmt::Display,
     path::{Path, PathBuf},
@@ -17,7 +18,8 @@ use std::{
     io::ErrorKind,
     time::{SystemTime, UNIX_EPOCH},
 };
-use tokio::io::AsyncRead;
+use tokio::{fs::File, io::AsyncRead, sync::RwLock};
+use uuid::Uuid;
 
 /// A pure, safe interface to access files of any kind.
 /// This struct guards against path traversal and symlink abuse.
@@ -25,7 +27,11 @@ use tokio::io::AsyncRead;
 #[derive(Debug)]
 pub struct FileStore {
     base_path: PathBuf,
+    handles: DashMap<String, RwLock<()>>,
 }
+
+unsafe impl Send for FileStore {}
+unsafe impl Sync for FileStore {}
 
 impl FileStore {
     /// Create a new `FileStore` instance. All reads and writes
@@ -35,7 +41,10 @@ impl FileStore {
         if !base_path.is_dir() {
             bail!("Provided base path is not a directory!");
         }
-        Ok(FileStore { base_path })
+        Ok(FileStore {
+            base_path,
+            handles: DashMap::new(),
+        })
     }
 
     /// Write a file's contents into the filesystem.
@@ -49,6 +58,14 @@ impl FileStore {
         let path = self.safe_canonicalize(&rel_path)?;
 
         ensure!(path.exists(), FSError::NameCollision(fname));
+
+        // Check to see if the file ID is already being accessed
+        if self.handles.contains_key(normalized_id) {
+
+        }
+        else {
+            // Tell the hashmap we have acquired a lock on the file.
+        }
 
         let mut fd = tokio::fs::File::create(path).await?;
         _ = tokio::io::copy(&mut payload, &mut fd).await?;
@@ -71,7 +88,7 @@ impl FileStore {
     /// Safely canonicalizes a given path relative to the base path.
     ///
     /// The `safe_canonicalize` function takes a `Path` as input and attempts to join it
-    /// to the base path, eliminating symbolic links and normalizing all intermediate components. 
+    /// to the base path, eliminating symbolic links and normalizing all intermediate components.
     /// It performs additional safety checks ensuring that the destination file is present,
     /// not a symbolic link, and actually exists within the base_path.
     fn safe_canonicalize(&self, path: &Path) -> Result<PathBuf> {
@@ -91,7 +108,10 @@ impl FileStore {
         };
 
         ensure!(!full_path.is_symlink(), FSError::IsSymlink(file_name));
-        ensure!(full_path.starts_with(&self.base_path), FSError::DirectoryTraversal(file_name));
+        ensure!(
+            full_path.starts_with(&self.base_path),
+            FSError::DirectoryTraversal(file_name)
+        );
 
         Ok(full_path)
     }
@@ -108,7 +128,7 @@ impl FileStore {
     /// and then Base64 encoding the entire byte array using a url-safe alphabet.
     ///
     fn generate_normal_id() -> String {
-        let fid = Uuid::new_v4().as_bytes();
+        let fid = Uuid::new_v4();
 
         let now = {
             let start = SystemTime::now();
@@ -120,7 +140,7 @@ impl FileStore {
 
         let num = thread_rng().gen::<u32>().to_le_bytes();
 
-        let bindat = [fid.as_slice(), &now, &num].concat();
+        let bindat = [fid.as_bytes().as_slice(), &now, &num].concat();
 
         const BASE64: engine::GeneralPurpose =
             engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);

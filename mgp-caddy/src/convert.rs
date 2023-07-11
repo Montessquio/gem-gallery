@@ -3,8 +3,8 @@
 //! For optimization purposes, all images are stored in webp format
 //! and all videos are stored in webm format. (The GIF analog is an animated webp, not a webm.)
 
-use eyre::{bail, eyre, Result};
-use ffmpeg_next::{ffi::*, format::context::Input, encoder::{Audio, Video}, media};
+use eyre::{bail, Result};
+use ffmpeg_next::{ffi::*, format::context::Input, encoder::{Audio, Video}};
 use file_format::FileFormat;
 use image::codecs::webp::{WebPEncoder, WebPQuality};
 use std::{
@@ -234,6 +234,7 @@ struct AVTranscoder<R> {
     video_encoder: Video,
 }
 
+/*
 #[allow(unused)]
 impl<R: Read> AVTranscoder<R> {
     pub fn new(
@@ -283,3 +284,4 @@ impl<R: Read> Read for AVTranscoder<R> {
         todo!()
     }
 }
+*/
